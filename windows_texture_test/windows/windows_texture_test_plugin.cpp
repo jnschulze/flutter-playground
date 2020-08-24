@@ -101,7 +101,7 @@ void WindowsTextureTestPlugin::RegisterWithRegistrar(
           registrar->messenger(), "windows_texture_test",
           &flutter::StandardMethodCodec::GetInstance());
 
-  auto plugin = std::make_unique<WindowsTextureTestPlugin>(registrar->textures());
+  auto plugin = std::make_unique<WindowsTextureTestPlugin>(registrar->texture_registrar());
 
   channel->SetMethodCallHandler(
       [plugin_pointer = plugin.get()](const auto& call, auto result) {
