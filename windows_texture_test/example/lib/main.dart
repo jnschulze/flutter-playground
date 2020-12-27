@@ -13,7 +13,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  PlayerController _controller;
+  PlayerController? _controller;
 
   @override
   void initState() {
@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     _controller = PlayerController();
 
-    await _controller.initialize();
+    await _controller!.initialize();
 
     if (!mounted) return;
 
@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget playerView() {
-    if (_controller == null || !_controller.value.isInitialized) {
+    if (_controller == null || !_controller!.value.isInitialized) {
       return const Text(
         'Not Initialized',
         style: TextStyle(
@@ -45,7 +45,7 @@ class _MyAppState extends State<MyApp> {
     } else {
       return AspectRatio(
         aspectRatio: 16 / 9,
-        child: PlayerView(_controller),
+        child: PlayerView(_controller!),
       );
     }
   }

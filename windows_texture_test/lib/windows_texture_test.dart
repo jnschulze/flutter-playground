@@ -7,13 +7,13 @@ final MethodChannel _channel = const MethodChannel('windows_texture_test');
 
 class PlayerValue {
   PlayerValue({
-    this.isInitialized,
+    required this.isInitialized,
   });
 
   final bool isInitialized;
 
   PlayerValue copyWith({
-    bool isInitialized,
+    bool? isInitialized,
   }) {
     return PlayerValue(
       isInitialized: isInitialized ?? this.isInitialized,
@@ -27,8 +27,8 @@ class PlayerValue {
 }
 
 class PlayerController extends ValueNotifier<PlayerValue> {
-  Completer<void> _creatingCompleter;
-  int _textureId;
+  late Completer<void> _creatingCompleter;
+  int _textureId = 0;
   bool _isDisposed = false;
 
   PlayerController() : super(PlayerValue.uninitialized());
@@ -39,14 +39,14 @@ class PlayerController extends ValueNotifier<PlayerValue> {
     }
     try {
       _creatingCompleter = Completer<void>();
-      final Map<String, dynamic> reply =
-          await _channel.invokeMapMethod<String, dynamic>(
-        'initialize',
-        <String, dynamic>{},
-      );
-      _textureId = reply['textureId'];
 
-      value = value.copyWith(isInitialized: true);
+      final reply =
+          await _channel.invokeMapMethod<String, dynamic>('initialize');
+
+      if (reply != null) {
+        _textureId = reply['textureId'];
+        value = value.copyWith(isInitialized: true);
+      }
     } on PlatformException catch (e) {}
 
     _creatingCompleter.complete();
