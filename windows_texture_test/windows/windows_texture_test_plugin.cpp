@@ -47,7 +47,7 @@ namespace
     }).detach();
   }
 
-  class ColorBarTexture : public flutter::PixelBufferTextureDelegate
+  class ColorBarTexture
   {
   public:
     ColorBarTexture(size_t width, size_t height);
@@ -112,6 +112,7 @@ namespace
 
     flutter::TextureRegistrar *textures_;
     std::unique_ptr<flutter::TextureVariant> texture_;
+    std::unique_ptr<ColorBarTexture> color_bar_texture_;
   };
 
   // static
@@ -145,7 +146,12 @@ namespace
 
     if (method_name.compare("initialize") == 0)
     {
-      texture_ = std::make_unique<flutter::TextureVariant>(flutter::PixelBufferTexture(std::make_unique<ColorBarTexture>(1920, 1080)));
+      color_bar_texture_ = std::make_unique<ColorBarTexture>(1920, 1080);
+
+      texture_ = std::make_unique<flutter::TextureVariant>(flutter::PixelBufferTexture([this](size_t width, size_t height) -> const FlutterDesktopPixelBuffer * {
+        return color_bar_texture_->CopyPixelBuffer(width, height);
+      }));
+
       int64_t texture_id = textures_->RegisterTexture(texture_.get());
 
       auto response = flutter::EncodableValue(flutter::EncodableMap{
@@ -155,8 +161,9 @@ namespace
 
       result->Success(response);
 
-      // Update the texture once per second
-      StartTimer(1000, [&, texture_id]() {
+      // Update the texture @ 10 Hz
+      // Setting this to 60 Hz might cause epileptic shocks :D
+      StartTimer(1000 / 10, [&, texture_id]() {
         textures_->MarkTextureFrameAvailable(texture_id);
       });
     }
